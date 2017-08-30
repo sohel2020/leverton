@@ -1,0 +1,59 @@
+version: '2'
+services:
+  apache-lb:
+    build: apache/
+    container_name: apache-lb
+    hostname: apache-lb
+    ports:
+      - "443:443"
+    restart: on-failure:5  
+    depends_on:
+      - mongodb
+      - tomcat1
+      - tomcat2
+    networks:
+      - leverton
+ 
+  tomcat1:
+    build: tomcat1/
+    container_name: tomcat1
+    hostname: tomcat1
+    restart: on-failure:5
+    depends_on:
+      - mongodb
+    ports:
+      - "8080"
+    networks:
+      - leverton
+ 
+  tomcat2:
+    build: tomcat2/
+    container_name: tomcat2
+    hostname: tomcat2
+    restart: on-failure:5
+    depends_on:
+      - mongodb
+    ports:
+      - "8080"
+    networks:
+      - leverton
+    
+  mongodb:
+    build: mongo/
+    container_name: mongodb
+    hostname: mongodb
+    restart: on-failure:5
+    environment:
+      - AUTH=yes
+      - MONGODB_ADMIN_USER=root
+      - MONGODB_ADMIN_PASS=password
+      - MONGODB_APPLICATION_DATABASE=leverton
+      - MONGODB_APPLICATION_USER=levertonuser
+      - MONGODB_APPLICATION_PASS=12345678
+    ports:
+      - "27017"  
+    networks:
+      - leverton
+networks:
+  leverton:
+    driver: bridge
